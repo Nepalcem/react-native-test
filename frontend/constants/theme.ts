@@ -18,6 +18,10 @@ export const Colors = {
   textRed: '#FF060A',
 } as const;
 
+export const API = {
+  RegistrationUrl: 'http://192.168.1.130:3003/users/',
+} as const;
+
 // import { Platform } from 'react-native';
 
 // const tintColorLight = '#0a7ea4';

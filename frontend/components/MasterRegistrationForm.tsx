@@ -1,9 +1,7 @@
-import { Colors, Fonts } from '@/constants/theme';
+import { API, Colors, Fonts } from '@/constants/theme';
 import { useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import InputDropDownIcon from '@/assets/images/input-drop-down.svg';
-
-const MASTER_REGISTER_URL = 'http://192.168.1.130:3003/users/master';
 
 export function MasterRegistrationForm() {
   const cities = useMemo(
@@ -23,7 +21,7 @@ export function MasterRegistrationForm() {
 
     try {
       setSubmitting(true);
-      const res = await fetch(MASTER_REGISTER_URL, {
+      const res = await fetch(API.RegistrationUrl + 'master', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

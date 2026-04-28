@@ -1,9 +1,7 @@
-import { Colors, Fonts } from '@/constants/theme';
+import { API, Colors, Fonts } from '@/constants/theme';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useMemo, useState } from 'react';
 import InputDropDownIcon from '@/assets/images/input-drop-down.svg';
-
-const CLIENT_REGISTER_URL = 'http://192.168.1.130:3003/users/client';
 
 export function ClientRegistrationForm() {
   const cities = useMemo(
@@ -23,7 +21,7 @@ export function ClientRegistrationForm() {
 
     try {
       setSubmitting(true);
-      const res = await fetch(CLIENT_REGISTER_URL, {
+      const res = await fetch(API.RegistrationUrl + 'client', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
