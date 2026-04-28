@@ -1,7 +1,7 @@
 import { Colors, Fonts } from '@/constants/theme';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Logo from './Logo';
+import Logo from './ui/Logo';
 
 export function About() {
   const router = useRouter();

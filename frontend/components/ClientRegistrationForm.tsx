@@ -1,7 +1,9 @@
 import { Colors, Fonts } from '@/constants/theme';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useMemo, useState } from 'react';
 import InputDropDownIcon from '@/assets/images/input-drop-down.svg';
+
+const CLIENT_REGISTER_URL = 'http://192.168.1.130:3003/users/client';
 
 export function ClientRegistrationForm() {
   const cities = useMemo(
@@ -10,6 +12,47 @@ export function ClientRegistrationForm() {
   );
   const [cityOpen, setCityOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState<(typeof cities)[number] | null>(null);
+  const [name, setName] = useState('');
+  const [countryCode, setCountryCode] = useState('+380');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [district, setDistrict] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  async function submit() {
+    if (submitting) return;
+
+    try {
+      setSubmitting(true);
+      const res = await fetch(CLIENT_REGISTER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          phone: `${countryCode}${phoneNumber}`,
+          city: selectedCity ?? '',
+          district,
+        }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(`Request failed: ${res.status} ${text}`);
+      }
+
+      Alert.alert('Успіх', 'Реєстрація пройшла успішно');
+      setName('');
+      setCountryCode('+380');
+      setPhoneNumber('');
+      setDistrict('');
+      setSelectedCity(null);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error(message);
+      Alert.alert('Помилка', message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -18,7 +61,13 @@ export function ClientRegistrationForm() {
       <View style={styles.form}>
         <View style={styles.field}>
           <Text style={styles.label}>Ваше Ім&apos;я</Text>
-          <TextInput style={styles.input} placeholder="Введіть ім'я" placeholderTextColor="#777" />
+          <TextInput
+            style={styles.input}
+            placeholder="Введіть ім'я"
+            placeholderTextColor="#777"
+            value={name}
+            onChangeText={setName}
+          />
         </View>
 
         <View style={styles.field}>
@@ -26,7 +75,8 @@ export function ClientRegistrationForm() {
           <View style={styles.phoneRow}>
             <TextInput
               style={[styles.input, styles.countryCodeInput]}
-              defaultValue="+380"
+              value={countryCode}
+              onChangeText={setCountryCode}
               keyboardType="phone-pad"
               placeholderTextColor="#777"
               maxLength={4}
@@ -36,6 +86,8 @@ export function ClientRegistrationForm() {
               placeholder="Номер телефону"
               placeholderTextColor="#777"
               keyboardType="phone-pad"
+              value={phoneNumber}
+              onChangeText={setPhoneNumber}
             />
           </View>
         </View>
@@ -83,11 +135,20 @@ export function ClientRegistrationForm() {
             style={styles.input}
             placeholder="Введіть район"
             placeholderTextColor="#777"
+            value={district}
+            onChangeText={setDistrict}
           />
         </View>
 
-        <Pressable style={styles.button} accessibilityRole="button">
-          <Text style={styles.buttonLabel}>Зареєструватись</Text>
+        <Pressable
+          style={[styles.button, submitting && styles.buttonDisabled]}
+          accessibilityRole="button"
+          disabled={submitting}
+          onPress={submit}
+        >
+          <Text style={styles.buttonLabel}>
+            {submitting ? 'Надсилаємо...' : 'Зареєструватись'}
+          </Text>
         </Pressable>
       </View>
     </View>
@@ -208,6 +269,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   buttonLabel: {
     fontFamily: Fonts.semiBold,
